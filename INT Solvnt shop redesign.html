@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOLVNT — S.003 Drop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,300;0,400;0,500;0,700;0,900;1,300;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --y:#FDCC04;
+  --blk:#090909;
+  --wht:#FAFAF8;
+  --mid:#666;
+  --dim:#1a1a1a;
+  --serif:'Instrument Serif',serif;
+  --sans:'Archivo',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--blk);color:var(--wht);font-family:var(--sans);overflow-x:hidden;cursor:none}
+
+/* CURSOR */
+.cursor{position:fixed;width:10px;height:10px;background:var(--y);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s}
+.cursor-ring{position:fixed;width:38px;height:38px;border:1px solid rgba(253,204,4,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s,border-color .2s}
+.cursor.big{width:5px;height:5px}
+.cursor-ring.big{width:52px;height:52px;border-color:rgba(253,204,4,.7)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:22px 48px;background:linear-gradient(to bottom,rgba(9,9,9,.9) 0%,transparent 100%)}
+.nav-logo{font-size:12px;font-weight:700;letter-spacing:.22em;color:var(--wht)}
+.nav-right{display:flex;gap:36px;align-items:center}
+.nav-link{font-size:10px;font-weight:500;letter-spacing:.18em;color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s}
+.nav-link:hover{color:var(--wht)}
+.nav-cart{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--y);text-decoration:none}
+
+/* HERO */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;position:relative}
+.hero-left{display:flex;flex-direction:column;justify-content:flex-end;padding:140px 48px 88px;position:relative;z-index:2}
+.hero-eyebrow{font-size:9px;font-weight:600;letter-spacing:.35em;color:var(--y);margin-bottom:28px;opacity:0;animation:up .7s .4s ease forwards}
+.hero-title{font-family:var(--serif);font-size:clamp(64px,8.5vw,120px);line-height:.9;font-weight:400;font-style:italic;margin-bottom:40px;opacity:0;animation:up .9s .55s ease forwards}
+.hero-title em{color:var(--y);font-style:italic;display:block}
+.hero-stats{display:flex;gap:40px;margin-bottom:52px;opacity:0;animation:up .7s .75s ease forwards}
+.stat-item{display:flex;flex-direction:column;gap:5px}
+.stat-label{font-size:8px;letter-spacing:.3em;color:rgba(255,255,255,.35);font-weight:600}
+.stat-val{font-size:13px;font-weight:500;color:var(--wht)}
+.stat-val.live{color:var(--y)}
+.hero-btn{display:inline-flex;align-items:center;gap:14px;background:var(--y);color:var(--blk);padding:17px 32px;font-size:10px;font-weight:700;letter-spacing:.22em;border:none;cursor:none;width:fit-content;opacity:0;animation:up .7s .9s ease forwards;transition:gap .3s}
+.hero-btn:hover{gap:22px}
+
+.hero-right{position:relative;overflow:hidden;background:#0d0d0d}
+.hero-media{width:100%;height:100%;object-fit:cover;filter:grayscale(15%) contrast(1.05);transform:scale(1.06);animation:scale 1.6s .2s ease forwards}
+.hero-media-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(9,9,9,.45) 0%,transparent 35%)}
+.drop-index{position:absolute;bottom:44px;right:44px;font-family:var(--serif);font-size:9px;letter-spacing:.4em;color:rgba(255,255,255,.25);writing-mode:vertical-rl;font-style:italic}
+.drop-big{position:absolute;bottom:-10px;right:-10px;font-family:var(--serif);font-size:220px;font-style:italic;color:rgba(253,204,4,.04);line-height:1;pointer-events:none;user-select:none}
+
+/* TICKER */
+.ticker{border-top:1px solid var(--dim);border-bottom:1px solid var(--dim);overflow:hidden;padding:13px 0}
+.ticker-inner{display:flex;width:max-content;animation:scroll 22s linear infinite}
+.tick{font-size:9px;letter-spacing:.32em;font-weight:600;color:rgba(255,255,255,.25);white-space:nowrap;padding:0 44px}
+.tick b{color:var(--y)}
+
+/* AVAILABLE BANNER */
+.avail-banner{background:var(--y);padding:16px 48px;display:flex;align-items:center;justify-content:space-between}
+.avail-text{font-size:10px;font-weight:700;letter-spacing:.25em;color:var(--blk)}
+.avail-cta{font-size:10px;font-weight:700;letter-spacing:.2em;color:var(--blk);text-decoration:none;display:flex;align-items:center;gap:10px}
+
+/* SHOP HEADER */
+.shop-header{display:flex;justify-content:space-between;align-items:flex-end;padding:64px 48px 44px;border-bottom:1px solid var(--dim)}
+.sh-left{display:flex;flex-direction:column;gap:10px}
+.sh-eyebrow{font-size:9px;letter-spacing:.32em;color:var(--y);font-weight:600}
+.sh-title{font-family:var(--serif);font-size:52px;font-style:italic;font-weight:400;line-height:1}
+.sh-desc{font-size:11px;color:var(--mid);letter-spacing:.08em;line-height:1.75;max-width:300px}
+.sh-num{font-family:var(--serif);font-size:88px;font-style:italic;color:var(--dim);line-height:1}
+
+/* PRODUCT GRID */
+.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--dim)}
+
+.pcard{background:var(--blk);cursor:none;overflow:hidden}
+.pcard.span2{grid-column:span 2}
+.pimg-wrap{overflow:hidden;position:relative;background:#111}
+.pimg-wrap.tall{aspect-ratio:3/4}
+.pimg-wrap.wide{aspect-ratio:16/9}
+.pimg-wrap.sq{aspect-ratio:1/1}
+.pimg{width:100%;height:100%;object-fit:cover;transition:transform .75s ease;filter:grayscale(10%)}
+.pcard:hover .pimg{transform:scale(1.045)}
+.poverlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(9,9,9,.88) 0%,transparent 55%);opacity:0;transition:opacity .38s}
+.pcard:hover .poverlay{opacity:1}
+.pactions{position:absolute;bottom:0;left:0;right:0;padding:20px;display:flex;gap:8px;opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s}
+.pcard:hover .pactions{opacity:1;transform:translateY(0)}
+.padd{flex:1;background:var(--y);color:var(--blk);border:none;padding:13px;font-size:9px;font-weight:700;letter-spacing:.22em;cursor:none}
+.pview{background:rgba(255,255,255,.08);color:var(--wht);border:none;padding:13px 18px;font-size:9px;font-weight:600;letter-spacing:.18em;cursor:none;backdrop-filter:blur(8px)}
+
+/* Archive overlay for sold out */
+.sold-overlay{position:absolute;inset:0;background:rgba(9,9,9,.45)}
+
+.pinfo{padding:22px 26px}
+.pcollabo{font-size:8px;letter-spacing:.28em;color:var(--y);font-weight:600;margin-bottom:7px}
+.pname{font-size:15px;font-weight:500;margin-bottom:8px}
+.price-row{display:flex;justify-content:space-between;align-items:center}
+.pprice{font-size:14px;font-weight:400}
+.ptag{font-size:8px;letter-spacing:.22em;font-weight:600;padding:5px 11px;border:1px solid}
+.ptag.avail{color:var(--y);border-color:rgba(253,204,4,.3)}
+.ptag.arch{color:rgba(255,255,255,.25);border-color:var(--dim)}
+.pprice.dimmed{color:rgba(255,255,255,.25)}
+
+/* COLLAB */
+.collab{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--dim)}
+.collab-copy{padding:88px 48px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--dim)}
+.collab-ey{font-size:9px;letter-spacing:.32em;color:var(--y);font-weight:600;margin-bottom:36px}
+.collab-name{font-family:var(--serif);font-size:64px;font-style:italic;line-height:.95;margin-bottom:28px}
+.collab-bio{font-size:13px;color:var(--mid);line-height:1.85;max-width:360px;margin-bottom:44px}
+.collab-lnk{font-size:9px;letter-spacing:.28em;font-weight:700;color:var(--y);text-decoration:none;display:inline-flex;align-items:center;gap:10px;padding-bottom:6px;border-bottom:1px solid rgba(253,204,4,.25)}
+
+.collab-media{position:relative;overflow:hidden;background:#0c0c0c;min-height:500px}
+.collab-img{width:100%;height:100%;object-fit:cover;filter:grayscale(15%)}
+.collab-ghost{position:absolute;bottom:30px;left:30px;font-family:var(--serif);font-size:130px;font-style:italic;color:rgba(253,204,4,.04);line-height:.85;user-select:none;pointer-events:none}
+
+/* NOTIFY */
+.notify{padding:72px 48px;border-top:1px solid var(--dim);display:flex;align-items:center;justify-content:space-between;gap:40px}
+.notify-copy{max-width:480px}
+.notify-ey{font-size:9px;letter-spacing:.32em;color:var(--y);font-weight:600;margin-bottom:14px}
+.notify-title{font-family:var(--serif);font-size:40px;font-style:italic;line-height:1.05}
+.notify-form{display:flex;gap:0}
+.notify-input{background:#111;border:1px solid var(--dim);border-right:none;color:var(--wht);padding:16px 24px;font-family:var(--sans);font-size:12px;outline:none;width:300px;letter-spacing:.05em}
+.notify-input::placeholder{color:rgba(255,255,255,.2)}
+.notify-input:focus{border-color:rgba(253,204,4,.4)}
+.notify-submit{background:var(--y);color:var(--blk);border:none;padding:16px 28px;font-size:9px;font-weight:700;letter-spacing:.22em;cursor:none}
+
+/* FOOTER */
+.footer{padding:44px 48px;border-top:1px solid var(--dim);display:flex;align-items:center;justify-content:space-between}
+.flogo{font-size:11px;font-weight:700;letter-spacing:.22em;color:rgba(255,255,255,.3)}
+.flinks{display:flex;gap:28px}
+.flink{font-size:9px;letter-spacing:.18em;color:rgba(255,255,255,.2);text-decoration:none;font-weight:500;transition:color .2s}
+.flink:hover{color:var(--y)}
+.fcopy{font-size:9px;letter-spacing:.12em;color:rgba(255,255,255,.12)}
+
+/* ANIMATIONS */
+@keyframes up{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes scale{from{transform:scale(1.06)}to{transform:scale(1)}}
+@keyframes scroll{from{transform:none}to{transform:translateX(-50%)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .75s ease,transform .75s ease}
+.reveal.in{opacity:1;transform:none}
+.pcard{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.pcard.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="c"></div>
+<div class="cursor-ring" id="r"></div>
+
+<nav>
+  <div class="nav-logo">SOLVNT</div>
+  <div class="nav-right">
+    <a class="nav-link" href="https://solvnt.co/work">OUR WORK</a>
+    <a class="nav-link" href="https://solvnt.co/company">COMPANY</a>
+    <a class="nav-link" href="https://solvnt.co/services">SERVICES</a>
+    <a class="nav-cart" href="https://shop.solvnt.co/cart">CART (0)</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">S.003 — FIFTH ANNIVERSARY DROP</div>
+    <h1 class="hero-title">Where<br><em>creativity</em>meets culture.</h1>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-label">COLLAB</span>
+        <span class="stat-val">Jennet Liaw</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">DROP</span>
+        <span class="stat-val">S.003</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">AVAILABLE</span>
+        <span class="stat-val live">1 Piece</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">STUDIO</span>
+        <span class="stat-val">NY — Accra</span>
+      </div>
+    </div>
+    <button class="hero-btn" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">
+      SHOP THE DROP &nbsp;→
+    </button>
+  </div>
+
+  <div class="hero-right">
+    <img class="hero-media" src="https://images.squarespace-cdn.com/content/v1/668c54d7bb3a274a73002e91/8c0f10d5-047f-4eb1-a6e1-c3dceac7ed8b/image+%288%29.png?format=1500w" alt="SOLVNT S.003">
+    <div class="hero-media-overlay"></div>
+    <div class="drop-index">S.003 — 2024</div>
+    <div class="drop-big">003</div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="tick">S.003 DROP <b>✦</b></span>
+    <span class="tick">JENNET LIAW × SOLVNT <b>✦</b></span>
+    <span class="tick">5TH ANNIVERSARY <b>✦</b></span>
+    <span class="tick">LIMITED EDITION <b>✦</b></span>
+    <span class="tick">NEW YORK — ACCRA <b>✦</b></span>
+    <span class="tick">ONE PIECE REMAINING <b>✦</b></span>
+    <span class="tick">S.003 DROP <b>✦</b></span>
+    <span class="tick">JENNET LIAW × SOLVNT <b>✦</b></span>
+    <span class="tick">5TH ANNIVERSARY <b>✦</b></span>
+    <span class="tick">LIMITED EDITION <b>✦</b></span>
+    <span class="tick">NEW YORK — ACCRA <b>✦</b></span>
+    <span class="tick">ONE PIECE REMAINING <b>✦</b></span>
+  </div>
+</div>
+
+<!-- AVAILABLE BANNER -->
+<div class="avail-banner">
+  <span class="avail-text">⬤ &nbsp;THE SOLVNT NY TOTE IS AVAILABLE NOW — $55</span>
+  <a class="avail-cta" href="https://shop.solvnt.co/shop/p/product-2-7mww5">ADD TO CART &nbsp;→</a>
+</div>
+
+<!-- SHOP -->
+<div id="shop">
+  <div class="shop-header reveal">
+    <div class="sh-left">
+      <div class="sh-eyebrow">THE COLLECTION</div>
+      <div class="sh-title">Shop S.003</div>
+      <div class="sh-desc">Six pieces for the fifth anniversary. One still available — the rest are archived.</div>
+    </div>
+    <div class="sh-num">06</div>
+  </div>
+
+  <div class="product-grid" id="grid">
+
+    <!-- TOTE — featured, available, spans 2 -->
+    <div class="pcard span2">
+      <div class="pimg-wrap wide">
+        <img class="pimg" src="https://images.squarespace-cdn.com/content/v1/668c54d7bb3a274a73002e91/8c0f10d5-047f-4eb1-a6e1-c3dceac7ed8b/image+%288%29.png?format=1500w" alt="SOLVNT NY Tote">
+        <div class="poverlay"></div>
+        <div class="pactions">
+          <button class="padd" onclick="window.open('https://shop.solvnt.co/shop/p/product-2-7mww5')">ADD TO CART — $55</button>
+          <button class="pview" onclick="window.open('https://shop.solvnt.co/shop/p/product-2-7mww5')">VIEW</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <div class="pcollabo">JENNET LIAW × SOLVNT</div>
+        <div class="pname">SOLVNT NY Tote</div>
+        <div class="price-row">
+          <span class="pprice">$55.00</span>
+          <span class="ptag avail">AVAILABLE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- NY TEE — sold out -->
+    <div class="pcard">
+      <div class="pimg-wrap tall">
+        <img class="pimg" src="https://images.squarespace-cdn.com/content/v1/668c54d7bb3a274a73002e91/8c0f10d5-047f-4eb1-a6e1-c3dceac7ed8b/image+%288%29.png?format=1500w" alt="SOLVNT NY Tee" style="filter:grayscale(50%)">
+        <div class="sold-overlay"></div>
+        <div class="poverlay"></div>
+        <div class="pactions">
+          <button class="pview" style="flex:1">ARCHIVED</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <div class="pcollabo">JENNET LIAW × SOLVNT</div>
+        <div class="pname">SOLVNT NY Tee</div>
+        <div class="price-row">
+          <span class="pprice dimmed">$65.00</span>
+          <span class="ptag arch">ARCHIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LONG TEE — sold out -->
+    <div class="pcard">
+      <div class="pimg-wrap tall">
+        <img class="pimg" src="https://images.squarespace-cdn.com/content/v1/668c54d7bb3a274a73002e91/8c0f10d5-047f-4eb1-a6e1-c3dceac7ed8b/image+%288%29.png?format=1500w" alt="Long Tee" style="filter:grayscale(50%)">
+        <div class="sold-overlay"></div>
+        <div class="poverlay"></div>
+        <div class="pactions">
+          <button class="pview" style="flex:1">ARCHIVED</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <div class="pcollabo">JENNET LIAW × SOLVNT</div>
+        <div class="pname">SOLVNT NY Long Tee</div>
+        <div class="price-row">
+          <span class="pprice dimmed">$65.00</span>
+          <span class="ptag arch">ARCHIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HAT BLUE -->
+    <div class="pcard">
+      <div class="pimg-wrap sq">
+        <img class="pimg" src="https://images.squarespace-cdn.com/content/v1/668c54d7bb3a274a73002e91/8c0f10d5-047f-4eb1-a6e1-c3dceac7ed8b/image+%288%29.png?format=1500w" alt="Hat Blue" style="filter:grayscale(50%)">
+        <div class="sold-overlay"></div>
+        <div class="poverlay"></div>
+        <div class="pactions">
+          <button class="pview" style="flex:1">ARCHIVED</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <div class="pcollabo">JENNET LIAW × SOLVNT</div>
+        <div class="pname">SOLVNT Hat — Blue</div>
+        <div class="price-row">
+          <span class="pprice dimmed">$45.00</span>
+          <span class="ptag arch">ARCHIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HAT BROWN -->
+    <div class="pcard">
+      <div class="pimg-wrap sq">
+        <img class="pimg" src="https://images.squarespace-cdn.com/content/v1/668c54d7bb3a274a73002e91/8c0f10d5-047f-4eb1-a6e1-c3dceac7ed8b/image+%288%29.png?format=1500w" alt="Hat Brown" style="filter:grayscale(50%)">
+        <div class="sold-overlay"></div>
+        <div class="poverlay"></div>
+        <div class="pactions">
+          <button class="pview" style="flex:1">ARCHIVED</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <div class="pcollabo">JENNET LIAW × SOLVNT</div>
+        <div class="pname">SOLVNT Hat — Brown</div>
+        <div class="price-row">
+          <span class="pprice dimmed">$45.00</span>
+          <span class="ptag arch">ARCHIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HAT BLACK -->
+    <div class="pcard">
+      <div class="pimg-wrap sq">
+        <img class="pimg" src="https://images.squarespace-cdn.com/content/v1/668c54d7bb3a274a73002e91/8c0f10d5-047f-4eb1-a6e1-c3dceac7ed8b/image+%288%29.png?format=1500w" alt="Hat Black" style="filter:grayscale(50%)">
+        <div class="sold-overlay"></div>
+        <div class="poverlay"></div>
+        <div class="pactions">
+          <button class="pview" style="flex:1">ARCHIVED</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <div class="pcollabo">JENNET LIAW × SOLVNT</div>
+        <div class="pname">SOLVNT Hat — Black</div>
+        <div class="price-row">
+          <span class="pprice dimmed">$45.00</span>
+          <span class="ptag arch">ARCHIVE</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- COLLAB -->
+<section class="collab reveal">
+  <div class="collab-copy">
+    <div class="collab-ey">THE COLLABORATION</div>
+    <h2 class="collab-name">Jennet<br>Liaw.</h2>
+    <p class="collab-bio">Renowned designer and illustrator based in New York. For SOLVNT's fifth anniversary, Jennet brought her distinctive visual language to an exclusive capsule collection — six pieces where studio culture meets global creative identity.</p>
+    <a class="collab-lnk" href="https://jennetliaw.com" target="_blank">VIEW HER WORK &nbsp;→</a>
+  </div>
+  <div class="collab-media">
+    <img class="collab-img" src="https://images.squarespace-cdn.com/content/v1/668c54d7bb3a274a73002e91/8c0f10d5-047f-4eb1-a6e1-c3dceac7ed8b/image+%288%29.png?format=1500w" alt="Jennet Liaw collaboration">
+    <div class="collab-ghost">JL</div>
+  </div>
+</section>
+
+<!-- NOTIFY -->
+<section class="notify reveal">
+  <div class="notify-copy">
+    <div class="notify-ey">S.004 IS COMING</div>
+    <h2 class="notify-title">Be first to know<br>about the next drop.</h2>
+  </div>
+  <div class="notify-form">
+    <input class="notify-input" type="email" placeholder="Your email address">
+    <button class="notify-submit">NOTIFY ME</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="flogo">SOLVNT</div>
+  <div class="flinks">
+    <a class="flink" href="https://solvnt.co/work">OUR WORK</a>
+    <a class="flink" href="https://solvnt.co/company">COMPANY</a>
+    <a class="flink" href="https://solvnt.co/services">SERVICES</a>
+    <a class="flink" href="https://www.instagram.com/solvnt.co/">INSTAGRAM</a>
+    <a class="flink" href="https://open.spotify.com/playlist/6XfQkNwNVQm1SZ6VKTvvK5">S-RADIO</a>
+  </div>
+  <div class="fcopy">NEW YORK — ACCRA</div>
+</footer>
+
+<script>
+const cur=document.getElementById('c'), ring=document.getElementById('r');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.cssText+=`;left:${mx}px;top:${my}px`;
+});
+(function anim(){
+  rx+=(mx-rx)*.11;ry+=(my-ry)*.11;
+  ring.style.cssText+=`;left:${rx}px;top:${ry}px`;
+  requestAnimationFrame(anim);
+})();
+document.querySelectorAll('button,a,.pcard,input').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.classList.add('big');ring.classList.add('big')});
+  el.addEventListener('mouseleave',()=>{cur.classList.remove('big');ring.classList.remove('big')});
+});
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+const cards=document.querySelectorAll('.pcard');
+const co=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){
+    const i=Array.from(cards).indexOf(e.target);
+    setTimeout(()=>e.target.classList.add('in'),i*70);
+    co.unobserve(e.target);
+  }
+}),{threshold:.05});
+cards.forEach(c=>co.observe(c));
+</script>
+</body>
+</html>
